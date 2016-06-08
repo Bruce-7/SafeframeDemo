@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "HDDrawTextField.h"
 
-@interface ViewController () <HDDrawTextFieldDelegate>
+@interface ViewController () <UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UIView *testView;
 
 @property (weak, nonatomic) IBOutlet HDDrawTextField *drawTextField;
@@ -35,18 +35,18 @@
 
 - (IBAction)clickOk:(UIButton *)sender
 {
-    NSLog(@"密码:%@", self.drawTextField.textContent);
+    NSLog(@"密码:%@", self.drawTextField.text);
 }
 
-#pragma mark - HDDrawTextFieldDelegate
-- (void)drawTextFieldDidBeginEditing:(HDDrawTextField *)drawTextField
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField
 {
     [UIView animateWithDuration:0.3 animations:^{
         self.testView.transform = CGAffineTransformMakeTranslation(0, -100.0);
     }];
 }
 
-- (void)drawTextFieldDidEndEditing:(HDDrawTextField *)drawTextField
+- (void)textFieldDidEndEditing:(UITextField *)textField
 {
     [UIView animateWithDuration:0.3 animations:^{
         self.testView.transform = CGAffineTransformMakeTranslation(0, 0);

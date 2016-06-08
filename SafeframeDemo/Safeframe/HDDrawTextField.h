@@ -10,28 +10,11 @@
 
 UIKIT_EXTERN NSString * const HDDrawTextFieldIsShowPasswordNotification; // 是否显示密码的通知
 
-@class HDDrawTextField;
-
-@protocol HDDrawTextFieldDelegate <NSObject>
-
-@optional
-- (void)drawTextFieldDidBeginEditing:(HDDrawTextField *)drawTextField;
-- (void)drawTextFieldDidEndEditing:(HDDrawTextField *)drawTextField;
-
-@end
-
-@interface HDDrawTextField : UIView
+@interface HDDrawTextField : UITextField
 
 /**
  *  快速创建对象
  */
 + (instancetype)drawTextField;
-
-/**
- *  获取文本框内容
- */
-@property (nonatomic, copy, readonly) NSString *textContent;
-
-@property (nonatomic, weak) id <HDDrawTextFieldDelegate> delegate;
 
 @end

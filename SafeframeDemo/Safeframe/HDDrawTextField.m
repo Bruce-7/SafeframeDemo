@@ -13,9 +13,7 @@
 
 NSString * const HDDrawTextFieldIsShowPasswordNotification = @"HDDrawTextFieldIsShowPasswordNotification";
 
-@interface HDDrawTextField () <HDKeyboardViewDelegate, UITextFieldDelegate>
-
-@property (nonatomic, weak) UITextField *textField;
+@interface HDDrawTextField () <HDKeyboardViewDelegate>
 
 @property (nonatomic, assign) BOOL isShowPassword;
 
@@ -72,13 +70,10 @@ static const NSUInteger PwdPointCount = 6; // 最多6位密码
     HDKeyboardView *keyboardView = [HDKeyboardView keyboardView];
     
     keyboardView.delegate = self;
-    UITextField *textField = [[UITextField alloc] init];
-    textField.delegate = self;
     
-    textField.inputView = keyboardView;
-    [textField becomeFirstResponder];
-    [self addSubview:textField];
-    self.textField = textField;
+    self.font = [UIFont systemFontOfSize:0.0];
+    self.inputView = keyboardView;
+    [self becomeFirstResponder];
 }
 
 static BOOL textFieldState = YES;
@@ -87,27 +82,32 @@ static BOOL textFieldState = YES;
     if (NO == textFieldState)
     {
         [UIView animateWithDuration:0.5 animations:^{
-            [self.textField becomeFirstResponder];
+            [self becomeFirstResponder];
             textFieldState = YES;
         }];
     }
     else
     {
         [UIView animateWithDuration:0.5 animations:^{
-            [self.textField resignFirstResponder];
+            [self resignFirstResponder];
             textFieldState = NO;
         }];
     }
 }
 
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+    return NO;
+}
+
+- (CGRect)caretRectForPosition:(UITextPosition *)position
+{
+    return CGRectZero;
+}
+
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (NSString *)textContent
-{
-    return self.textField.text;
 }
 
 #pragma mark - HDKeyboardViewDelegate
@@ -126,48 +126,30 @@ static BOOL textFieldState = YES;
 
     if (btn.tag == HDKeyboardBtnNumDelete)
     {
-        if (self.textField.text.length > 0)
+        if (self.text.length > 0)
         {
-            [self.textField deleteBackward]; // 从光标后面删除
+            [self deleteBackward]; // 从光标后面删除
         }
         
         [self setNeedsDisplay];
     }
     
-    if (self.textField.text.length < 6)
+    if (self.text.length < 6)
     {
         NSString *temp = nil;
         if (btn.tag == HDKeyboardBtnNumZero)
         {
             temp = [NSString stringWithFormat:@"%d", 0];
-            [self.textField insertText:temp]; // 插入到光标后面
+            [self insertText:temp]; // 插入到光标后面
         }
         
         if (btn.tag >= HDKeyboardBtnNumOne && btn.tag <= HDKeyboardBtnNumNine)
         {
             temp = [NSString stringWithFormat:@"%ld", (long)btn.tag];
-            [self.textField insertText:temp];
+            [self insertText:temp];
         }
         
         [self setNeedsDisplay];
-    }
-}
-
-#pragma mark - UITextFieldDelegate
-
-- (void)textFieldDidBeginEditing:(UITextField *)textField
-{
-    if ([self.delegate respondsToSelector:@selector(drawTextFieldDidBeginEditing:)])
-    {
-        [self.delegate drawTextFieldDidBeginEditing:self];
-    }
-}
-
-- (void)textFieldDidEndEditing:(UITextField *)textField
-{
-    if ([self.delegate respondsToSelector:@selector(drawTextFieldDidEndEditing:)])
-    {
-        [self.delegate drawTextFieldDidEndEditing:self];
     }
 }
 
@@ -202,11 +184,11 @@ static BOOL textFieldState = YES;
     if (self.isShowPassword == YES)
     {
         NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-        dic[NSFontAttributeName] = [UIFont systemFontOfSize:18.0];
+        dic[NSFontAttributeName] = [UIFont systemFontOfSize:20.0];
         
-        for (int i = 0; i < self.textField.text.length; i++)
+        for (int i = 0; i < self.text.length; i++)
         {
-            NSString *str = [NSString stringWithFormat:@"%c", [self.textField.text characterAtIndex:i]];
+            NSString *str = [NSString stringWithFormat:@"%c", [self.text characterAtIndex:i]];
             pointX = margin + i * (pointW + margin * 2);
 
             [str drawInRect:CGRectMake(pointX, pointY, pointW, pointH) withAttributes:dic];
@@ -217,7 +199,7 @@ static BOOL textFieldState = YES;
         // 画点
         UIImage *pointImage = [UIImage imageNamed:@"Safeframe.bundle/yuan"];
         
-        for (int i = 0; i < self.textField.text.length; i++)
+        for (int i = 0; i < self.text.length; i++)
         {
             pointX = margin + i * (pointW + margin * 2);
             [pointImage drawInRect:CGRectMake(pointX, pointY, pointW, pointH)];
